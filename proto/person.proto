@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package main;
+
+option go_package = "./proto_struct";
+
+message PersonRequest {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+  
+}
+
+message PersonResponse {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+}

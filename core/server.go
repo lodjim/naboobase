@@ -19,12 +19,12 @@ func (server *Server) Init(ip string, port int) {
 	server.Port = port
 	server.Router = gin.Default()
 	server.Router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},                                                // Specify allowed origins
-		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"}, // Specify allowed methods
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},          // Specify allowed headers
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,           // Allow credentials (cookies)
-		MaxAge:           12 * time.Hour, // Maximum age for preflight request caching
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	err := server.Router.SetTrustedProxies([]string{"127.0.0.1"})

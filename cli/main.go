@@ -11,7 +11,7 @@ func main() {
 	if os.Args[1] == "generate" {
 		logger := log.New(os.Stdout, "PROTOC_LOG: ", log.Ldate|log.Ltime|log.Lshortfile)
 
-		protoDir, err := os.ReadDir("proto")
+		protoDir, err := os.ReadDir("json")
 		if err != nil {
 			logger.Fatalf("Failed to read 'proto' directory: %s", err.Error())
 		}

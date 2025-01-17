@@ -1,0 +1,14 @@
+{
+    "name":{
+        "value": "John Doe",
+        "validation": "required,min=2,max=50"
+    },
+    "email": {
+        "value": "johndoe@example.com",
+        "validation": "required,email"
+    },
+    "password":{
+      "value":"test",
+      "validation":"required,min=8,max=16"
+    }
+}

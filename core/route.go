@@ -5,5 +5,5 @@ import "github.com/gin-gonic/gin"
 type Endpoint struct {
 	Method  string
 	Path    string
-	Handler func() gin.HandlerFunc
+	Handler gin.HandlerFunc
 }

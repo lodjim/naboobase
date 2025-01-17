@@ -41,17 +41,17 @@ func (server *Server) AttachEndpoints(endpoints []Endpoint) {
 	for _, endpoint := range endpoints {
 		switch endpoint.Method {
 		case "POST":
-			server.Router.POST(endpoint.Path, endpoint.Handler())
+			server.Router.POST(endpoint.Path, endpoint.Handler)
 		case "GET":
-			server.Router.GET(endpoint.Path, endpoint.Handler())
+			server.Router.GET(endpoint.Path, endpoint.Handler)
 		case "PATCH":
-			server.Router.PATCH(endpoint.Path, endpoint.Handler())
+			server.Router.PATCH(endpoint.Path, endpoint.Handler)
 		case "PUT":
-			server.Router.PUT(endpoint.Path, endpoint.Handler())
+			server.Router.PUT(endpoint.Path, endpoint.Handler)
 		case "DELETE":
-			server.Router.DELETE(endpoint.Path, endpoint.Handler())
+			server.Router.DELETE(endpoint.Path, endpoint.Handler)
 		case "OPTIONS":
-			server.Router.OPTIONS(endpoint.Path, endpoint.Handler())
+			server.Router.OPTIONS(endpoint.Path, endpoint.Handler)
 		}
 	}
 }

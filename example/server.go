@@ -1,6 +1,7 @@
 package main
 
 import (
+	"naboobase/controllers"
 	"naboobase/core"
 	"net/http"
 
@@ -13,14 +14,18 @@ func HealthCheck() gin.HandlerFunc {
 	}
 }
 
+var dbConnector = core.MongoDBconnector{}
+
 func main() {
+
+	_ = dbConnector.Connect("naboobase")
 	myApi := core.Server{}
 	myApi.Init("localhost", 1555)
 	myApi.AttachEndpoints([]core.Endpoint{
 		{
-			Method:  "GET",
-			Path:    "/health",
-			Handler: HealthCheck,
+			Method:  "POST",
+			Path:    "/test",
+			Handler: controllers.CreateUser(dbConnector),
 		},
 	})
 	myApi.RunServer()

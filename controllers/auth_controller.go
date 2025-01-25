@@ -9,8 +9,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"github.com/jinzhu/copier"
 	"go.mongodb.org/mongo-driver/bson"
 
 	//"reflect"
@@ -40,7 +38,6 @@ func Login(db core.MongoDBconnector) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{Status: http.StatusNotFound, ErrorMessage: "User is not found"})
 			return
 		}
-
 		if err := utils.VerifyPassword(user.PasswordHashed, payload.Password); err != nil {
 			c.JSON(http.StatusBadRequest, models.ErrorResponse{Status: http.StatusBadRequest, ErrorMessage: "Password is not correct"})
 			return
@@ -50,6 +47,6 @@ func Login(db core.MongoDBconnector) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Status: http.StatusInternalServerError, ErrorMessage: "Error while creating access token"})
 			return
 		}
-		c.JSON(http.StatusOK, responses.LoginResponse{Token: token, TokenType: "Bearer"})
+		c.JSON(http.StatusOK, models.LoginResponse{Token: token, TokenType: "Bearer"})
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"naboobase/configs"
@@ -77,12 +78,19 @@ func (db *MongoDBconnector) GetRecord(ctx context.Context, collectionName string
 
 func (db *MongoDBconnector) CreateRecord(ctx context.Context, collectionName string, record interface{}) error {
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
-
 	err := isUnique(ctx, collection, record, "unique")
-
 	if err != nil {
 		return err
 	}
+
+	fields := utils.GetTaggedFields(record, "autogenerate")
+	for _, field := range fields {
+		err := utils.Set(field, primitive.NewObjectID(), record)
+		if err != nil {
+			return err
+		}
+	}
+
 	_, err = collection.InsertOne(ctx, record)
 	if err != nil {
 		return err

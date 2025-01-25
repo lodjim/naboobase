@@ -51,7 +51,7 @@ func CreateUser(db core.MongoDBconnector) gin.HandlerFunc {
 		}
 		user.PasswordHashed = hashedPassword
 
-		if err := db.CreateRecord(ctx, "users", user); err != nil {
+		if err := db.CreateRecord(ctx, "users", &user); err != nil {
 			c.String(http.StatusBadRequest, "Failed to create user: "+err.Error())
 			return
 		}

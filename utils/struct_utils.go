@@ -30,6 +30,7 @@ func Set(fieldName string, value interface{}, s interface{}) error {
 	val := reflect.ValueOf(s)
 
 	// If s is a pointer, dereference it
+
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	} else {

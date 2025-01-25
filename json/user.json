@@ -1,4 +1,8 @@
 {
+    "_id":{
+      "value":"cjhjvzivfvbsif",
+      "db":"autogenerate"
+    },
     "name": {
         "value": "John Doe"
     },
@@ -7,8 +11,14 @@
         "db":"unique"
     },
     "passwordHashed": {
-        "value": "5f4dcc3b5aa765d61d8327deb882cf99",  
+        "value": "5f4dcc3b5aa765d61d8327deb882cf99"
     },
+    "is_verified": {
+            "value": false
+      },
+    "is_superuser": {
+            "value": false
+      },
     "role": {
         "value": "user"
     },

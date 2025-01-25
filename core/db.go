@@ -66,6 +66,15 @@ func isUnique(ctx context.Context, collection *mongo.Collection, record interfac
 	return nil
 }
 
+func (db *MongoDBconnector) GetRecord(ctx context.Context, collectionName string, filter interface{}, record interface{}) error {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+	err := collection.FindOne(ctx, filter).Decode(record)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (db *MongoDBconnector) CreateRecord(ctx context.Context, collectionName string, record interface{}) error {
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
 
@@ -86,7 +95,7 @@ func (db *MongoDBconnector) Connect(DBName string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var err error
-	db.Client, err = mongo.Connect(ctx, options.Client().ApplyURI(configs.EnvMongoURI()))
+	db.Client, err = mongo.Connect(ctx, options.Client().ApplyURI(configs.EnvMongoURI()).SetMaxPoolSize(50).SetMinPoolSize(10).SetMaxConnIdleTime(10*time.Minute))
 	if err != nil {
 		return err
 	}

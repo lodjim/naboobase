@@ -77,13 +77,17 @@ func ParseStruct(name string, data map[string]interface{}, structs map[string]*S
 				}
 				if dbTag, ok := v["db"].(string); ok {
 					field.DBTag = dbTag
+					// Override type if db tag is "autogenerate"
+					if dbTag == "autogenerate" {
+						field.Type = "primitive.ObjectID"
+					}
 				}
 			} else {
-				// Handle nested struct
+
 				nestedName := fmt.Sprintf("%s%s", name, field.Name)
 				ParseStruct(nestedName, v, structs)
 				field.Type = nestedName
-				field.Validation = "required" // Optional: Keep this if nested structs should always be required
+				field.Validation = "required"
 			}
 		default:
 			field.Type = GetGoType(value)

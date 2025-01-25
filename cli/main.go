@@ -42,12 +42,30 @@ func main() {
 				os.Exit(1)
 			}
 
-			// Generate code
-			var buf bytes.Buffer
-			buf.WriteString(fmt.Sprintf("package %s\n\n", packageName))
-
+			// Parse structs first to determine imports
 			structs := make(map[string]*utils.StructDefinition)
 			utils.ParseStruct(structName, data, structs)
+
+			// Check if MongoDB primitive import is needed
+			needsPrimitive := false
+			for _, st := range structs {
+				for _, field := range st.Fields {
+					if field.Type == "primitive.ObjectID" {
+						needsPrimitive = true
+						break
+					}
+				}
+				if needsPrimitive {
+					break
+				}
+			}
+
+			// Generate code with proper imports
+			var buf bytes.Buffer
+			buf.WriteString(fmt.Sprintf("package %s\n\n", packageName))
+			if needsPrimitive {
+				buf.WriteString("import \"go.mongodb.org/mongo-driver/bson/primitive\"\n\n")
+			}
 
 			// Write all struct definitions
 			for _, st := range structs {
@@ -67,7 +85,6 @@ func main() {
 			}
 
 			fmt.Println("Successfully generated struct definitions")
-
 		}
 
 		logger.Println("Processing completed.")

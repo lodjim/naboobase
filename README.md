@@ -284,7 +284,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Happy coding! If you have any questions or need further assistance, feel free to open an issue or reach out via our [GitHub Discussions](https://github.com/yourusername/naboobase/discussions).
+Happy coding! If you have any questions or need further assistance, feel free to open an issue or reach out via our [GitHub Discussions](https://github.com/lodjim/naboobase/discussions).
 
 ---
 

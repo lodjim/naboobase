@@ -28,5 +28,6 @@ func main() {
 			Handler: controllers.CreateUser(dbConnector),
 		},
 	})
+	myApi.AttachAuthenticationLayer(dbConnector)
 	myApi.RunServer()
 }

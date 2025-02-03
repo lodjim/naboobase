@@ -55,6 +55,13 @@ func (server *Server) AttachEndpoints(endpoints []Endpoint) {
 	}
 }
 
+func (server *Server) AttachAuthenticationLayer(db MongoDBconnector) {
+	auth := Authenticator{
+		Type: PasswordTypeAuthenticator,
+	}
+	server.AttachEndpoints(auth.Init(db))
+}
+
 func (server *Server) RunServer() {
 	link := fmt.Sprintf("%s:%v", server.IP, server.Port)
 	err := server.Router.Run(link)

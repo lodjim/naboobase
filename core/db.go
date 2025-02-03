@@ -67,6 +67,15 @@ func isUnique(ctx context.Context, collection *mongo.Collection, record interfac
 	return nil
 }
 
+func (db *MongoDBconnector) DeleteRecordById(ctx context.Context, collectionName string, id primitive.ObjectID, record interface{}) error {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (db *MongoDBconnector) GetRecord(ctx context.Context, collectionName string, filter interface{}, record interface{}) error {
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
 	err := collection.FindOne(ctx, filter).Decode(record)
@@ -114,4 +123,128 @@ func (db *MongoDBconnector) Connect(DBName string) error {
 	}
 	fmt.Println("Connected to MongoDB")
 	return errors.New("Error during the database connection")
+}
+
+func (db *MongoDBconnector) UpdateRecord(
+	ctx context.Context,
+	collectionName string,
+	id primitive.ObjectID,
+	updateData interface{},
+	record interface{},
+) error {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+
+	if err := isUnique(ctx, collection, updateData, "unique"); err != nil {
+		return err
+	}
+
+	update := bson.M{"$set": updateData}
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	err := collection.FindOneAndUpdate(
+		ctx,
+		bson.M{"_id": id},
+		update,
+		opts,
+	).Decode(record)
+
+	return err
+}
+
+func (db *MongoDBconnector) BulkCreateRecords(
+	ctx context.Context,
+	collectionName string,
+	records []interface{},
+) error {
+
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+
+	// Check uniqueness for all records (batch version would need optimization)
+	for _, record := range records {
+		if err := isUnique(ctx, collection, record, "unique"); err != nil {
+			return err
+		}
+	}
+
+	_, err := collection.InsertMany(ctx, records)
+	return err
+}
+
+func (db *MongoDBconnector) SoftDeleteRecord(
+	ctx context.Context,
+	collectionName string,
+	id primitive.ObjectID,
+) error {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+
+	update := bson.M{"$set": bson.M{"deleted_at": time.Now()}}
+	_, err := collection.UpdateByID(ctx, id, update)
+	return err
+}
+
+func (db *MongoDBconnector) GetPaginatedRecords(
+	ctx context.Context,
+	collectionName string,
+	filter bson.M,
+	page int,
+	limit int,
+	sortField string,
+	sortOrder int,
+	results interface{},
+) (int64, error) {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+
+	// Get total count
+	total, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return 0, err
+	}
+
+	// Pagination options
+	opts := options.Find().
+		SetSkip(int64((page - 1) * limit)).
+		SetLimit(int64(limit)).
+		SetSort(bson.D{{sortField, sortOrder}})
+
+	cursor, err := collection.Find(ctx, filter, opts)
+	if err != nil {
+		return 0, err
+	}
+	defer cursor.Close(ctx)
+
+	return total, cursor.All(ctx, results)
+}
+
+func (db *MongoDBconnector) ExistsRecord(
+	ctx context.Context,
+	collectionName string,
+	filter bson.M,
+) (bool, error) {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+	count, err := collection.CountDocuments(ctx, filter, options.Count().SetLimit(1))
+	return count > 0, err
+}
+
+func (db *MongoDBconnector) EnsureIndexes(
+	ctx context.Context,
+	collectionName string,
+	model mongo.IndexModel,
+) error {
+	collection := db.Client.Database(db.DBName).Collection(collectionName)
+	_, err := collection.Indexes().CreateOne(ctx, model)
+	return err
+}
+
+func (db *MongoDBconnector) WithTransaction(
+	ctx context.Context,
+	fn func(sessCtx mongo.SessionContext) (interface{}, error),
+) error {
+	session, err := db.Client.StartSession()
+	if err != nil {
+		return err
+	}
+	defer session.EndSession(ctx)
+
+	_, err = session.WithTransaction(ctx, fn)
+	return err
 }

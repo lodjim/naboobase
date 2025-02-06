@@ -33,5 +33,6 @@ func main() {
 		},
 	})
 	myApi.AttachAuthenticationLayer(dbConnector)
+	myApi.AutoServe(dbConnector)
 	myApi.RunServer()
 }

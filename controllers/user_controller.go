@@ -1,69 +1,34 @@
 package controllers
 
 import (
-	"context"
 	//"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/jinzhu/copier"
 	"naboobase/core"
 	"naboobase/models"
 	"naboobase/utils"
-	"net/http"
-
 	//"reflect"
-	"time"
 )
 
 var validate = validator.New()
 
 func CreateUser(db core.MongoDBconnector) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		var userRequest models.UserRequest
-		var userResponse models.UserResponse
-		var user models.User
-
-		if err := c.BindJSON(&userRequest); err != nil {
-			c.String(http.StatusBadRequest, err.Error())
-			return
-		}
-
-		if err := validate.Struct(userRequest); err != nil {
-			validationErrors, ok := err.(validator.ValidationErrors)
-			if !ok {
-				c.String(http.StatusBadRequest, "Invalid request payload")
-				return
+	return core.GenerateCreateHandler(db, core.HandlerConfig{
+		NewRequest:  func() interface{} { return &models.UserRequest{} },
+		NewModel:    func() interface{} { return &models.User{} },
+		NewResponse: func() interface{} { return &models.UserResponse{} },
+		Collection:  "users",
+		Preprocess: func(model, req interface{}) error {
+			userReq := req.(*models.UserRequest)
+			user := model.(*models.User)
+			hashedPassword, err := utils.HashPassword(userReq.Password)
+			if err != nil {
+				return err
 			}
-			c.String(http.StatusBadRequest, validationErrors.Error())
-			return
-		}
-
-		if err := copier.Copy(&user, &userRequest); err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		hashedPassword, err := utils.HashPassword(userRequest.Password)
-		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
-			return
-		}
-		user.PasswordHashed = hashedPassword
-
-		if err := db.CreateRecord(ctx, "users", &user); err != nil {
-			c.String(http.StatusBadRequest, "Failed to create user: "+err.Error())
-			return
-		}
-
-		if err := copier.Copy(&userResponse, &user); err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		c.JSON(http.StatusOK, userResponse)
-	}
+			user.PasswordHashed = hashedPassword
+			return nil
+		},
+	})
 }
 
 /*

@@ -62,6 +62,19 @@ func (server *Server) AttachAuthenticationLayer(db MongoDBconnector) {
 	server.AttachEndpoints(auth.Init(db))
 }
 
+func (server *Server) AutoServe(db MongoDBconnector) {
+	var newEndpoints []Endpoint
+	for k, v := range AutoEndpointFuncRegistry {
+		newEndpoint := Endpoint{
+			Method:  "POST",
+			Handler: v(db),
+			Path:    fmt.Sprintf("/%s", k),
+		}
+		newEndpoints = append(newEndpoints, newEndpoint)
+	}
+	server.AttachEndpoints(newEndpoints)
+}
+
 func (server *Server) RunServer() {
 	link := fmt.Sprintf("%s:%v", server.IP, server.Port)
 	err := server.Router.Run(link)

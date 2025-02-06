@@ -27,6 +27,10 @@ func Create{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 		Preprocess:  nil,
 	})
 }
+
+func init() {
+	core.AutoEndpointFuncRegistry["{{.Collection}}"] = Create{{.Model}}
+}
 `
 
 type ControllerConfig struct {

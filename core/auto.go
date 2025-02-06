@@ -2,11 +2,14 @@ package core
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/jinzhu/copier"
-	"net/http"
-	"time"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type HandlerConfig struct {
@@ -70,6 +73,34 @@ func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 		}
 
 		// Return the response as JSON
+		c.JSON(http.StatusOK, res)
+	}
+}
+
+func GenerateGetHandler(db MongoDBconnector, config HandlerConfig) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		id := c.Param("id")
+		req, err := primitive.ObjectIDFromHex(id)
+
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		model := config.NewModel()
+		res := config.NewModel()
+		if config.Preprocess != nil {
+			if err := config.Preprocess(model, req); err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
+				return
+			}
+		}
+		err = db.GetRecord(ctx, config.Collection, bson.M{"_id": req}, res)
+		if err != nil {
+			c.String(http.StatusBadRequest, "Failed to get the record: "+err.Error())
+			return
+		}
 		c.JSON(http.StatusOK, res)
 	}
 }

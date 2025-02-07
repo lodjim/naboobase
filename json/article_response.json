@@ -1,8 +1,11 @@
 {
-    "title": {
-        "value": "title of the article"
-    },
-    "description":{
-      "value":"text"
-    }
+  "_id": {
+    "value": "vzvnjvbkvfjvnvj"
+  },
+  "title": {
+    "value": "title of the article"
+  },
+  "description": {
+    "value": "text"
+  }
 }

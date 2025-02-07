@@ -28,14 +28,47 @@ func Create{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 	})
 }
 
+func GetOne{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
+	return core.GenerateGetOneHandler(db, core.HandlerConfig{
+		NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
+		NewModel:    func() interface{} { return &models.{{.Model}}{} },
+		NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+		Collection:  "{{.Collection}}",
+		Preprocess:  nil,
+	})
+}
+func GetAll{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
+	return core.GenerateGetAllHandler(db, core.HandlerConfig{
+		NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
+		NewModel:    func() interface{} { return &models.{{.Model}}{} },
+		NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+		Collection:  "{{.Collection}}",
+		Preprocess:  nil,
+	})
+}
+
+func Delete{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
+	return core.GenerateDeleteHandler(db, core.HandlerConfig{
+			NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
+			NewModel:    func() interface{} { return &models.{{.Model}}{} },
+			NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+			Collection:  "{{.Collection}}",
+			Preprocess:  nil,
+	})
+}
+
+
 func init() {
-	core.AutoEndpointFuncRegistry["{{.Collection}}"] = Create{{.Model}}
+	core.AutoEndpointFuncRegistry["{{.Collection}}-POST"] = Create{{.Model}}
+	core.AutoEndpointFuncRegistry["{{.Collection}}-GET-ID"] = GetOne{{.Model}}
+	core.AutoEndpointFuncRegistry["{{.Collection}}-GET"] = GetAll{{.Model}}
+	core.AutoEndpointFuncRegistry["{{.Collection}}-DELETE"] = Delete{{.Model}}
 }
 `
 
 type ControllerConfig struct {
-	Model      string // The model name (e.g., "Transaction")
-	Collection string // MongoDB collection name (e.g., "transactions")
+	Model      string
+	Collection string
 }
 
 func generateControllerFile(config ControllerConfig) error {

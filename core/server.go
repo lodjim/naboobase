@@ -2,9 +2,11 @@ package core
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 type Server struct {
@@ -65,12 +67,22 @@ func (server *Server) AttachAuthenticationLayer(db MongoDBconnector) {
 func (server *Server) AutoServe(db MongoDBconnector) {
 	var newEndpoints []Endpoint
 	for k, v := range AutoEndpointFuncRegistry {
-		newEndpoint := Endpoint{
-			Method:  "POST",
-			Handler: v(db),
-			Path:    fmt.Sprintf("/%s", k),
+		information := strings.Split(k, "-")
+		if len(information) == 2 {
+			newEndpoint := Endpoint{
+				Method:  information[1],
+				Handler: v(db),
+				Path:    fmt.Sprintf("/%s", information[0]),
+			}
+			newEndpoints = append(newEndpoints, newEndpoint)
+		} else {
+			newEndpoint := Endpoint{
+				Method:  information[1],
+				Handler: v(db),
+				Path:    fmt.Sprintf("/%s/:id", information[0]),
+			}
+			newEndpoints = append(newEndpoints, newEndpoint)
 		}
-		newEndpoints = append(newEndpoints, newEndpoint)
 	}
 	server.AttachEndpoints(newEndpoints)
 }

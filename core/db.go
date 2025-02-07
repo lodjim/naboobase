@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"naboobase/configs"
+	"naboobase/utils"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"naboobase/configs"
-	"naboobase/utils"
-	"time"
 )
 
 type DBconnector interface {
@@ -181,29 +182,26 @@ func (db *MongoDBconnector) SoftDeleteRecord(
 	_, err := collection.UpdateByID(ctx, id, update)
 	return err
 }
-
 func (db *MongoDBconnector) GetPaginatedRecords(
 	ctx context.Context,
 	collectionName string,
 	filter bson.M,
-	page int,
-	limit int,
+	page int64,
+	limit int64,
 	sortField string,
 	sortOrder int,
 	results interface{},
 ) (int64, error) {
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
 
-	// Get total count
 	total, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
 		return 0, err
 	}
 
-	// Pagination options
 	opts := options.Find().
-		SetSkip(int64((page - 1) * limit)).
-		SetLimit(int64(limit)).
+		SetSkip((page - 1) * limit).
+		SetLimit(limit).
 		SetSort(bson.D{{sortField, sortOrder}})
 
 	cursor, err := collection.Find(ctx, filter, opts)

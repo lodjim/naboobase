@@ -225,7 +225,7 @@ func GenerateGetAllHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 		}
 
 		// Retrieve paginated records
-		var results []interface{}
+		var results []map[string]interface{}
 		total, err := db.GetPaginatedRecords(ctx, config.Collection, filter, page, limit, sortField, sortOrder, &results)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())

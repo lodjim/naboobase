@@ -190,7 +190,7 @@ func (db *MongoDBconnector) GetPaginatedRecords(
 	limit int64,
 	sortField string,
 	sortOrder int,
-	results interface{},
+	results *[]map[string]interface{},
 ) (int64, error) {
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
 

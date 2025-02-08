@@ -47,6 +47,16 @@ func GetAll{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 	})
 }
 
+func Update{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
+	return core.GenerateUpdateHandler(db, core.HandlerConfig{
+			NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
+			NewModel:    func() interface{} { return &models.{{.Model}}{} },
+			NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+			Collection:  "{{.Collection}}",
+			Preprocess:  nil,
+	})
+}
+
 func Delete{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 	return core.GenerateDeleteHandler(db, core.HandlerConfig{
 			NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
@@ -62,7 +72,8 @@ func init() {
 	core.AutoEndpointFuncRegistry["{{.Collection}}-POST"] = Create{{.Model}}
 	core.AutoEndpointFuncRegistry["{{.Collection}}-GET-ID"] = GetOne{{.Model}}
 	core.AutoEndpointFuncRegistry["{{.Collection}}-GET"] = GetAll{{.Model}}
-	core.AutoEndpointFuncRegistry["{{.Collection}}-DELETE"] = Delete{{.Model}}
+	core.AutoEndpointFuncRegistry["{{.Collection}}-PUT-ID"] = Update{{.Model}}
+	core.AutoEndpointFuncRegistry["{{.Collection}}-DELETE-ID"] = Delete{{.Model}}
 }
 `
 

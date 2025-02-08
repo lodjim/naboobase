@@ -36,6 +36,16 @@ func GetAllArticle(db core.MongoDBconnector) gin.HandlerFunc {
 	})
 }
 
+func UpdateArticle(db core.MongoDBconnector) gin.HandlerFunc {
+	return core.GenerateUpdateHandler(db, core.HandlerConfig{
+			NewRequest:  func() interface{} { return &models.ArticleRequest{} },
+			NewModel:    func() interface{} { return &models.Article{} },
+			NewResponse: func() interface{} { return &models.ArticleResponse{} },
+			Collection:  "article",
+			Preprocess:  nil,
+	})
+}
+
 func DeleteArticle(db core.MongoDBconnector) gin.HandlerFunc {
 	return core.GenerateDeleteHandler(db, core.HandlerConfig{
 			NewRequest:  func() interface{} { return &models.ArticleRequest{} },
@@ -51,5 +61,6 @@ func init() {
 	core.AutoEndpointFuncRegistry["article-POST"] = CreateArticle
 	core.AutoEndpointFuncRegistry["article-GET-ID"] = GetOneArticle
 	core.AutoEndpointFuncRegistry["article-GET"] = GetAllArticle
-	core.AutoEndpointFuncRegistry["article-DELETE"] = DeleteArticle
+	core.AutoEndpointFuncRegistry["article-PUT-ID"] = UpdateArticle
+	core.AutoEndpointFuncRegistry["article-DELETE-ID"] = DeleteArticle
 }

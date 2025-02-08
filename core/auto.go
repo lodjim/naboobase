@@ -2,6 +2,9 @@ package core
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"naboobase/utils"
 	"net/http"
 	"strconv"
 	"time"
@@ -155,7 +158,53 @@ func GenerateDeleteHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 			c.String(http.StatusBadRequest, "Failed to delete the record: "+err.Error())
 			return
 		}
-		c.JSON(http.StatusOK, res)
+		utils.Set("_id", id, &res)
+		c.String(http.StatusOK, fmt.Sprintf("%s is deleted successfully", id))
+	}
+}
+
+func GenerateUpdateHandler(db MongoDBconnector, config HandlerConfig) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+		defer cancel()
+		model := config.NewModel()
+		id := c.Param("id")
+		req, err := primitive.ObjectIDFromHex(id)
+		rawData, err := c.GetRawData()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read request body"})
+			return
+		}
+		var data map[string]interface{}
+		var modelJson map[string]interface{}
+		jsonBytes, err := json.Marshal(model)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid JSON"})
+			return
+		}
+		if err := json.Unmarshal(rawData, &data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+			return
+		}
+		if err = json.Unmarshal(jsonBytes, &modelJson); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+			return
+		}
+		if err := utils.ValidateKeys(data, modelJson); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+		if config.Preprocess != nil {
+			if err := config.Preprocess(model, req); err != nil {
+				c.String(http.StatusInternalServerError, err.Error())
+				return
+			}
+		}
+		err = db.UpdateRecord(ctx, config.Collection, req, data, model)
+		if err != nil {
+			c.String(http.StatusBadRequest, "Failed to update the record: "+err.Error())
+			return
+		}
+		c.String(http.StatusOK, fmt.Sprintf("%s is updated successfully", id))
 	}
 }
 

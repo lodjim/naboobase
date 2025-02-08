@@ -70,7 +70,10 @@ func isUnique(ctx context.Context, collection *mongo.Collection, record interfac
 
 func (db *MongoDBconnector) DeleteRecordById(ctx context.Context, collectionName string, id primitive.ObjectID, record interface{}) error {
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
-	_, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	res, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	if res.DeletedCount == 0 {
+		return fmt.Errorf("Not %s found in the database", id.Hex())
+	}
 	if err != nil {
 		return err
 	}

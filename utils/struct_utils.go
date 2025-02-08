@@ -86,3 +86,12 @@ func GetTaggedFields(s interface{}, tag string) []string {
 
 	return uniqueFields
 }
+
+func ValidateKeys(data, modelJson map[string]interface{}) error {
+	for key := range data {
+		if _, exists := modelJson[key]; !exists {
+			return fmt.Errorf("key '%s' is not defined in the model", key)
+		}
+	}
+	return nil
+}

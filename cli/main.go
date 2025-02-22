@@ -7,9 +7,10 @@ import (
 	"go/format"
 	"io/ioutil"
 	"log"
-	"naboobase/utils"
 	"os"
 	"strings"
+
+	"github.com/lodjim/naboobase/utils"
 )
 
 func main() {

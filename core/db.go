@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"naboobase/configs"
-	"naboobase/utils"
 	"time"
+
+	"github.com/lodjim/naboobase/configs"
+	"github.com/lodjim/naboobase/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

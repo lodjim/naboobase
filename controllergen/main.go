@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"naboobase/utils"
 	"os"
 	"strings"
 	"text/template"
+
+	"github.com/lodjim/naboobase/utils"
 )
 
 const controllerTemplate = `package controllers

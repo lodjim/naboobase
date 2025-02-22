@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"naboobase/utils"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/lodjim/naboobase/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -64,8 +65,7 @@ func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 			}
 			return
 		}
-
-		jsonData, err := ioutil.ReadFile(fmt.Sprintf("../../json/%s.json", config.Collection))
+		jsonData, err := ioutil.ReadFile(fmt.Sprintf("json/%s.json", config.Collection))
 		if err != nil {
 			fmt.Printf("Error reading input file: %v\n", err)
 			os.Exit(1)

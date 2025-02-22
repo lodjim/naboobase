@@ -1,4 +1,4 @@
-module naboobase
+module github.com/lodjim/naboobase
 
 go 1.23.4
 

@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"naboobase/core"
-	"naboobase/models"
-	"naboobase/utils"
+	"github.com/lodjim/naboobase/core"
+	"github.com/lodjim/naboobase/models"
+	"github.com/lodjim/naboobase/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -16,7 +16,7 @@ func CreateUser(db core.MongoDBconnector) gin.HandlerFunc {
 		NewRequest:  func() interface{} { return &models.UserRequest{} },
 		NewModel:    func() interface{} { return &models.User{} },
 		NewResponse: func() interface{} { return &models.UserResponse{} },
-		Collection:  "users",
+		Collection:  "user",
 		Preprocess: func(model, req interface{}) error {
 			userReq := req.(*models.UserRequest)
 			user := model.(*models.User)

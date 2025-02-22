@@ -2,9 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"naboobase/models" // Update this import path to match your module name
 	"reflect"
 	"strings"
+
+	"github.com/lodjim/naboobase/models" // Update this import path to match your module name
 )
 
 // GetModelType takes a model name (like "user") and returns the corresponding type (like User)

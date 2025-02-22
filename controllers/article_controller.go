@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"naboobase/core"
-	"naboobase/models"
+	"github.com/lodjim/naboobase/core"
+	"github.com/lodjim/naboobase/models"
 )
 
 // CreateArticle creates a new Article in the database
@@ -38,24 +38,23 @@ func GetAllArticle(db core.MongoDBconnector) gin.HandlerFunc {
 
 func UpdateArticle(db core.MongoDBconnector) gin.HandlerFunc {
 	return core.GenerateUpdateHandler(db, core.HandlerConfig{
-			NewRequest:  func() interface{} { return &models.ArticleRequest{} },
-			NewModel:    func() interface{} { return &models.Article{} },
-			NewResponse: func() interface{} { return &models.ArticleResponse{} },
-			Collection:  "article",
-			Preprocess:  nil,
+		NewRequest:  func() interface{} { return &models.ArticleRequest{} },
+		NewModel:    func() interface{} { return &models.Article{} },
+		NewResponse: func() interface{} { return &models.ArticleResponse{} },
+		Collection:  "article",
+		Preprocess:  nil,
 	})
 }
 
 func DeleteArticle(db core.MongoDBconnector) gin.HandlerFunc {
 	return core.GenerateDeleteHandler(db, core.HandlerConfig{
-			NewRequest:  func() interface{} { return &models.ArticleRequest{} },
-			NewModel:    func() interface{} { return &models.Article{} },
-			NewResponse: func() interface{} { return &models.ArticleResponse{} },
-			Collection:  "article",
-			Preprocess:  nil,
+		NewRequest:  func() interface{} { return &models.ArticleRequest{} },
+		NewModel:    func() interface{} { return &models.Article{} },
+		NewResponse: func() interface{} { return &models.ArticleResponse{} },
+		Collection:  "article",
+		Preprocess:  nil,
 	})
 }
-
 
 func init() {
 	core.AutoEndpointFuncRegistry["article-POST"] = CreateArticle

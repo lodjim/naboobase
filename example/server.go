@@ -1,9 +1,10 @@
 package main
 
 import (
-	"naboobase/controllers"
-	"naboobase/core"
 	"net/http"
+
+	"github.com/lodjim/naboobase/controllers"
+	"github.com/lodjim/naboobase/core"
 
 	"github.com/gin-gonic/gin"
 )

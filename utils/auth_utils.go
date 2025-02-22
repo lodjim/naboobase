@@ -2,10 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"naboobase/configs"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/lodjim/naboobase/configs"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"

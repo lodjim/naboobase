@@ -31,7 +31,7 @@ func main() {
 		inputFile := jsonPath
 		// Use the file name (without extension) to derive the main struct name
 		base := strings.Split(filename.Name(), ".")[0]
-		outputFile := fmt.Sprintf("./models/%s.go", base)
+		outputFile := fmt.Sprintf("models/%s.go", base)
 		packageName := "models"
 		structName := utils.ConvertToCamelCase(base)
 
@@ -50,7 +50,7 @@ func main() {
 
 		// Parse structs and enums
 		structs := make(map[string]*utils.StructDefinition)
-		enums := make(map[string]utils.EnumDefinition) // Initialize enums map
+		enums := make(map[string]utils.EnumDefinition)      // Initialize enums map
 		utils.ParseStruct(structName, data, structs, enums) // Pass enums map
 
 		// Check if MongoDB primitive import is needed

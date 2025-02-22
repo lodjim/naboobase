@@ -1,18 +1,30 @@
 {
-    "_id":{
-      "value":"cjhjvzivfvbsif",
-      "db":"autogenerate"
-    },
-    "title": {
-        "value": "title of the article"
-    },
-    "description":{
-      "value":"text"
-    },
-    "created_at": {
-        "value": "2024-12-23T00:00:00Z"
-    },
-    "updated_at": {
-        "value": "2024-12-23T12:00:00Z"
-    }
+  "_id": {
+    "value": "cjhjvzivfvbsif",
+    "db": "autogenerate"
+  },
+  "title": {
+    "value": "title of the article"
+  },
+  "description": {
+    "value": "text"
+  },
+  "user_id": {
+    "value": "text",
+    "db": "unique"
+  },
+  "created_at": {
+    "value": "2024-12-23T00:00:00Z"
+  },
+  "updated_at": {
+    "value": "2024-12-23T12:00:00Z"
+  },
+  "_config": {
+    "foreign_keys": [
+      {
+        "name": "user_id",
+        "model": "user"
+      }
+    ]
+  }
 }

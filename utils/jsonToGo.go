@@ -57,6 +57,9 @@ func ParseStruct(name string, data map[string]interface{}, structs map[string]*S
 	structs[name] = st
 
 	for key, value := range data {
+		if key == "_config" {
+			continue
+		}
 		field := FieldDefinition{
 			Name:    ToGoFieldName(key),
 			JSONTag: key,

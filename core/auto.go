@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"naboobase/utils"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -15,6 +17,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+type ForeignKeyConfig struct {
+	Name  string `json:"name"`
+	Model string `json:"model"`
+}
+
+type ContentConfig struct {
+	ForeignKeys []ForeignKeyConfig `json:"foreign_keys"`
+}
+
+type ModelConfig struct {
+	ContentConfigs ContentConfig `json:"_config"`
+}
 
 type HandlerConfig struct {
 	NewRequest  func() interface{}                   // Function to create a new request instance
@@ -26,14 +41,14 @@ type HandlerConfig struct {
 
 func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		utils.RequireAuth(c)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-
 		// Initialize request, model, and response using the provided functions
 		req := config.NewRequest()
 		model := config.NewModel()
 		res := config.NewResponse()
-
+		var modelConfig ModelConfig
 		// Bind incoming JSON to the request struct
 		if err := c.BindJSON(req); err != nil {
 			c.String(http.StatusBadRequest, err.Error())
@@ -50,6 +65,28 @@ func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 			return
 		}
 
+		jsonData, err := ioutil.ReadFile(fmt.Sprintf("../../json/%s.json", config.Collection))
+		if err != nil {
+			fmt.Printf("Error reading input file: %v\n", err)
+			os.Exit(1)
+		}
+
+		if err := json.Unmarshal(jsonData, &modelConfig); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+			return
+		}
+
+		for _, relations := range modelConfig.ContentConfigs.ForeignKeys {
+			if relations.Model == "user" {
+				got_claims, ok := c.Get("claims")
+				if !ok {
+					c.String(http.StatusInternalServerError, "Can't get the ID of the user")
+					return
+				}
+				var claims utils.Claims = got_claims.(utils.Claims)
+				utils.Set(relations.Name, claims.Id, &model)
+			}
+		}
 		// Copy data from request to model using copier
 		if err := copier.Copy(model, req); err != nil {
 			c.String(http.StatusInternalServerError, err.Error())

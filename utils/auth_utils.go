@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"naboobase/configs"
+	"net/http"
 	"strings"
 	"time"
 
@@ -98,6 +99,25 @@ func VerifyJWT(tokenStr string) (*Claims, error) {
 		return nil, fmt.Errorf("invalid token")
 	}
 	return claims, nil
+}
+
+func RequireAuth(c *gin.Context) {
+	token_and_type := c.GetHeader("Authorization")
+	split_token_and_type := strings.Split(token_and_type, " ")
+	var token string
+	if len(split_token_and_type) == 1 {
+		token = split_token_and_type[0]
+	} else {
+		token = split_token_and_type[1]
+	}
+	claims, err := VerifyJWT(token)
+	if err != nil {
+		c.String(http.StatusUnauthorized, fmt.Sprintf("Unauthorized: %s", err.Error()))
+		c.Abort()
+		return
+	}
+	c.Set("claims", claims)
+	c.Next()
 }
 
 func VerifyRefreshJWT(tokenStr string) (*RefreshTokenClaims, error) {

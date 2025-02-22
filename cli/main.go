@@ -91,9 +91,7 @@ func main() {
 			fmt.Printf("Error writing output file: %v\n", err)
 			os.Exit(1)
 		}
-
 		fmt.Println("Successfully generated struct definitions for", structName)
 	}
-
 	logger.Println("Processing completed.")
 }

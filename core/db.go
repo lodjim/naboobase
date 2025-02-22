@@ -29,18 +29,14 @@ type MongoDBconnector struct {
 }
 
 func isFieldUnique(ctx context.Context, collection *mongo.Collection, field string, value interface{}) (bool, error) {
-	// Create a filter to find documents with the specified field value
 	filter := bson.M{field: value}
-	// Query the collection
 	var result bson.M
 	err := collection.FindOne(ctx, filter).Decode(&result)
-	// If no document is found, the field is unique
 	if err == mongo.ErrNoDocuments {
 		return true, nil
 	} else if err != nil {
 		return false, err
 	}
-	// If a document is found, the field is not unique
 	return false, nil
 }
 
@@ -162,14 +158,11 @@ func (db *MongoDBconnector) BulkCreateRecords(
 ) error {
 
 	collection := db.Client.Database(db.DBName).Collection(collectionName)
-
-	// Check uniqueness for all records (batch version would need optimization)
 	for _, record := range records {
 		if err := isUnique(ctx, collection, record, "unique"); err != nil {
 			return err
 		}
 	}
-
 	_, err := collection.InsertMany(ctx, records)
 	return err
 }

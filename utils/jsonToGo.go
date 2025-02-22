@@ -7,11 +7,13 @@ import (
 	"unicode"
 )
 
+// StructDefinition defines the structure of a Go struct.
 type StructDefinition struct {
 	Name   string
 	Fields []FieldDefinition
 }
 
+// FieldDefinition defines the structure of a field in a Go struct.
 type FieldDefinition struct {
 	Name       string
 	Type       string
@@ -21,6 +23,13 @@ type FieldDefinition struct {
 	Validation string
 }
 
+// EnumDefinition defines the structure of an enum in Go.
+type EnumDefinition struct {
+	Type   string   // The Go type of the enum (e.g., "string", "int")
+	Values []string // The possible values as strings
+}
+
+// ConvertToCamelCase converts a snake_case string to CamelCase.
 func ConvertToCamelCase(input string) string {
 	words := strings.Split(input, "_")
 	for i := range words {
@@ -31,6 +40,7 @@ func ConvertToCamelCase(input string) string {
 	return strings.Join(words, "")
 }
 
+// ConvertToSnakeCase converts a CamelCase string to snake_case.
 func ConvertToSnakeCase(input string) string {
 	var result []rune
 	for i, r := range input {
@@ -49,7 +59,8 @@ func ConvertToSnakeCase(input string) string {
 	return string(result)
 }
 
-func ParseStruct(name string, data map[string]interface{}, structs map[string]*StructDefinition) *StructDefinition {
+// ParseStruct parses the JSON-like data into a StructDefinition and handles enums.
+func ParseStruct(name string, data map[string]interface{}, structs map[string]*StructDefinition, enums map[string]EnumDefinition) *StructDefinition {
 	st := &StructDefinition{
 		Name:   name,
 		Fields: make([]FieldDefinition, 0),
@@ -69,26 +80,40 @@ func ParseStruct(name string, data map[string]interface{}, structs map[string]*S
 
 		switch v := value.(type) {
 		case map[string]interface{}:
-			if val, ok := v["value"]; ok {
+			// Check if it's an enum
+			if typ, ok := v["type"].(string); ok && typ == "enum" {
+				if vals, ok := v["values"].([]interface{}); ok && len(vals) > 0 {
+					// Determine the enum type based on the first value
+					enumType := GetGoType(vals[0])
+					enumName := fmt.Sprintf("%s%sEnum", name, field.Name)
+					strVals := make([]string, len(vals))
+					for i, val := range vals {
+						strVals[i] = fmt.Sprintf("%v", val)
+					}
+					// Store the enum definition
+					enums[enumName] = EnumDefinition{Type: enumType, Values: strVals}
+					field.Type = enumName
+					// Add validation
+					field.Validation = "oneof=" + strings.Join(strVals, " ")
+				}
+			} else if val, ok := v["value"]; ok {
 				// Handle fields with validation
 				field.Type = GetGoType(val)
 				if validationRule, ok := v["validation"].(string); ok {
 					field.Validation = validationRule
 				} else {
-					// Only set default validation if no explicit validation is provided
 					field.Validation = GetDefaultValidation(field.Type, key)
 				}
 				if dbTag, ok := v["db"].(string); ok {
 					field.DBTag = dbTag
-					// Override type if db tag is "autogenerate"
 					if dbTag == "autogenerate" {
 						field.Type = "primitive.ObjectID"
 					}
 				}
 			} else {
-
+				// Nested struct
 				nestedName := fmt.Sprintf("%s%s", name, field.Name)
-				ParseStruct(nestedName, v, structs)
+				ParseStruct(nestedName, v, structs, enums)
 				field.Type = nestedName
 				field.Validation = "required"
 			}
@@ -103,6 +128,7 @@ func ParseStruct(name string, data map[string]interface{}, structs map[string]*S
 	return st
 }
 
+// GenerateStructCode generates the Go code for a struct.
 func GenerateStructCode(buf *bytes.Buffer, st *StructDefinition) {
 	buf.WriteString(fmt.Sprintf("type %s struct {\n", st.Name))
 	for _, field := range st.Fields {
@@ -119,6 +145,7 @@ func GenerateStructCode(buf *bytes.Buffer, st *StructDefinition) {
 	buf.WriteString("}\n\n")
 }
 
+// GetGoType determines the Go type for a given value.
 func GetGoType(v interface{}) string {
 	switch val := v.(type) {
 	case bool:
@@ -142,6 +169,7 @@ func GetGoType(v interface{}) string {
 	}
 }
 
+// GetDefaultValidation provides default validation rules based on field type and name.
 func GetDefaultValidation(fieldType, fieldName string) string {
 	var validations []string
 
@@ -162,6 +190,7 @@ func GetDefaultValidation(fieldType, fieldName string) string {
 	return strings.Join(validations, ",")
 }
 
+// ToGoFieldName converts a JSON key to a Go field name (e.g., snake_case to CamelCase).
 func ToGoFieldName(s string) string {
 	parts := strings.Split(s, "_")
 	for i, p := range parts {
@@ -181,16 +210,40 @@ func ToGoFieldName(s string) string {
 	return strings.Join(parts, "")
 }
 
-func GenerateFile(structs map[string]*StructDefinition, packageName string) []byte {
+// GenerateFile generates the complete Go file with enums and structs.
+func GenerateFile(structs map[string]*StructDefinition, enums map[string]EnumDefinition, packageName string) []byte {
 	var buf bytes.Buffer
 
 	// Start with a package declaration
 	buf.WriteString(fmt.Sprintf("package %s\n\n", packageName))
 
-	// Generate each struct
+	// Generate enums
+	for enumName, enumDef := range enums {
+		buf.WriteString(fmt.Sprintf("type %s %s\n\n", enumName, enumDef.Type))
+		buf.WriteString("const (\n")
+		for _, val := range enumDef.Values {
+			constName := fmt.Sprintf("%s%s", enumName, ToGoFieldName(val))
+			if enumDef.Type == "string" {
+				buf.WriteString(fmt.Sprintf("\t%s %s = \"%s\"\n", constName, enumName, val))
+			} else {
+				buf.WriteString(fmt.Sprintf("\t%s %s = %s\n", constName, enumName, val))
+			}
+		}
+		buf.WriteString(")\n\n")
+	}
+
+	// Generate structs
 	for _, st := range structs {
 		GenerateStructCode(&buf, st)
 	}
 
 	return buf.Bytes()
+}
+
+// Example usage (not part of the package, for illustration)
+func GenerateCode(data map[string]interface{}) []byte {
+	structs := make(map[string]*StructDefinition)
+	enums := make(map[string]EnumDefinition)
+	ParseStruct("MyStruct", data, structs, enums)
+	return GenerateFile(structs, enums, "mypackage")
 }

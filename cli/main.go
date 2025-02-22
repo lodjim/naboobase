@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"go/format"
@@ -49,9 +48,10 @@ func main() {
 			os.Exit(1)
 		}
 
-		// Parse structs (the main struct and any nested structs)
+		// Parse structs and enums
 		structs := make(map[string]*utils.StructDefinition)
-		utils.ParseStruct(structName, data, structs)
+		enums := make(map[string]utils.EnumDefinition) // Initialize enums map
+		utils.ParseStruct(structName, data, structs, enums) // Pass enums map
 
 		// Check if MongoDB primitive import is needed
 		needsPrimitive := false
@@ -67,32 +67,28 @@ func main() {
 			}
 		}
 
-		// Generate code with proper imports and struct definitions
-		var buf bytes.Buffer
-		buf.WriteString(fmt.Sprintf("package %s\n\n", packageName))
+		// Generate code with proper imports, enums, and struct definitions
+		generatedCode := utils.GenerateFile(structs, enums, packageName)
+
+		// If primitive is needed, add the import statement
 		if needsPrimitive {
-			buf.WriteString("import \"go.mongodb.org/mongo-driver/bson/primitive\"\n\n")
+			importStatement := "import \"go.mongodb.org/mongo-driver/bson/primitive\"\n\n"
+			generatedCode = append([]byte(importStatement), generatedCode...)
 		}
 
-		// Write all struct definitions
-		for _, st := range structs {
-			utils.GenerateStructCode(&buf, st)
-		}
-
-		// Append an init function that registers the main struct.
-		// This init function will be executed automatically when the package is loaded.
-		// Format and write the generated code
-		formattedCode, err := format.Source(buf.Bytes())
+		// Format the generated code
+		formattedCode, err := format.Source(generatedCode)
 		if err != nil {
 			fmt.Printf("Error formatting code: %v\n", err)
 			os.Exit(1)
 		}
 
+		// Write the formatted code to the output file
 		if err := ioutil.WriteFile(outputFile, formattedCode, 0644); err != nil {
 			fmt.Printf("Error writing output file: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println("Successfully generated struct definitions for", structName)
+		fmt.Println("Successfully generated struct and enum definitions for", structName)
 	}
 	logger.Println("Processing completed.")
 }

@@ -62,7 +62,7 @@ func (Auth *Authenticator) Login(db MongoDBconnector) gin.HandlerFunc {
 
 		var user models.User
 
-		err := db.GetRecord(ctx, "users", bson.M{"email": payload.Email}, &user)
+		err := db.GetRecord(ctx, "user", bson.M{"email": payload.Email}, &user)
 		if err != nil {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{Status: http.StatusNotFound, ErrorMessage: "User is not found"})
 			return
@@ -101,7 +101,7 @@ func (Auth *Authenticator) RefreshToken(db MongoDBconnector) gin.HandlerFunc {
 			return
 		}
 		var user models.User
-		err = db.GetRecord(ctx, "users", bson.M{"email": claims.Email}, &user)
+		err = db.GetRecord(ctx, "user", bson.M{"email": claims.Email}, &user)
 		if err != nil {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{Status: http.StatusNotFound, ErrorMessage: "User is not found"})
 			return

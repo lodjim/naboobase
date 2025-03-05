@@ -10,11 +10,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lodjim/naboobase/utils"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/jinzhu/copier"
+	"github.com/lodjim/naboobase/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -42,21 +41,23 @@ type HandlerConfig struct {
 
 func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		utils.RequireAuth(c)
+
+		if config.Collection != "user" {
+			utils.RequireAuth(c)
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		// Initialize request, model, and response using the provided functions
 		req := config.NewRequest()
 		model := config.NewModel()
 		res := config.NewResponse()
 		var modelConfig ModelConfig
-		// Bind incoming JSON to the request struct
+
 		if err := c.BindJSON(req); err != nil {
 			c.String(http.StatusBadRequest, err.Error())
 			return
 		}
 
-		// Validate the request struct using the validator
 		if err := validate.Struct(req); err != nil {
 			if validationErrors, ok := err.(validator.ValidationErrors); ok {
 				c.String(http.StatusBadRequest, validationErrors.Error())
@@ -65,6 +66,7 @@ func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 			}
 			return
 		}
+
 		jsonData, err := ioutil.ReadFile(fmt.Sprintf("json/%s.json", config.Collection))
 		if err != nil {
 			fmt.Printf("Error reading input file: %v\n", err)
@@ -75,16 +77,17 @@ func GenerateCreateHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
 			return
 		}
-
-		for _, relations := range modelConfig.ContentConfigs.ForeignKeys {
-			if relations.Model == "user" {
-				got_claims, ok := c.Get("claims")
-				if !ok {
-					c.String(http.StatusInternalServerError, "Can't get the ID of the user")
-					return
+		if config.Collection != "user" {
+			for _, relations := range modelConfig.ContentConfigs.ForeignKeys {
+				if relations.Model == "user" {
+					got_claims, ok := c.Get("claims")
+					if !ok {
+						c.String(http.StatusInternalServerError, "Can't get the ID of the user")
+						return
+					}
+					var claims *utils.Claims = got_claims.(*utils.Claims)
+					utils.Set(relations.Name, claims.Id, &model)
 				}
-				var claims utils.Claims = got_claims.(utils.Claims)
-				utils.Set(relations.Name, claims.Id, &model)
 			}
 		}
 		// Copy data from request to model using copier
@@ -250,6 +253,15 @@ func GenerateGetAllHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 		ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 		defer cancel()
 
+		filter_search := c.Query("filter")
+		fmt.Println(filter_search)
+		query, err := utils.TransformFilterToMongoQuery(filter_search)
+		if err != nil {
+			c.String(http.StatusBadRequest, "The filter used is not appopriate")
+			return
+		}
+		fmt.Println(query)
+
 		// Parse pagination parameters
 		page, _ := strconv.ParseInt(c.Query("page"), 10, 64)
 		if page < 1 {
@@ -309,8 +321,9 @@ func GenerateGetAllHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 				return
 			}
 		}
-
-		// Retrieve paginated records
+		for key, value := range query {
+			filter[key] = value
+		}
 		var results []map[string]interface{}
 		total, err := db.GetPaginatedRecords(ctx, config.Collection, filter, page, limit, sortField, sortOrder, &results)
 		if err != nil {

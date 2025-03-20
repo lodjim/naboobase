@@ -1,4 +1,8 @@
-# Naboobase
+# WARNING
+
+This Repo is not yet finish so not ready for prod hope to finish it soon :)
+---
+## Naboobase
 
 Naboobase is an innovative Backend-as-a-Service (BaaS) platform inspired by [Pocketbase](https://github.com/pocketbase/pocketbase). It is designed to be scalable and easy to maintain while providing powerful tools for rapid backend development in Go.
 
@@ -287,5 +291,3 @@ This project is licensed under the [MIT License](LICENSE).
 Happy coding! If you have any questions or need further assistance, feel free to open an issue or reach out via our [GitHub Discussions](https://github.com/lodjim/naboobase/discussions).
 
 ---
-
-

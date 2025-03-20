@@ -1,6 +1,6 @@
 # WARNING
 
-This Repo is not yet finish so not ready for prod hope to finish it soon :)
+This repository is not finished yet, so it is not ready for production, I hope to finish it soon :)
 ---
 ## Naboobase
 

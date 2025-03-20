@@ -1,7 +1,7 @@
 package models
 
 type UserResponse struct {
-	ID        string `json:"_id" bson:"_id" validate:"uuid"`
+	Id        string `json:"_id" bson:"_id" validate:"uuid"`
 	Name      string `json:"name" bson:"name" validate:"required,min=2,max=50"`
 	Email     string `json:"email" bson:"email" validate:"required,email"`
 	Role      string `json:"role" bson:"role" validate:"required"`

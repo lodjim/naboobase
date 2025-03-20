@@ -191,7 +191,7 @@ func ToGoFieldName(s string) string {
 		case "url":
 			parts[i] = "URL"
 		case "id":
-			parts[i] = "ID"
+			parts[i] = "Id"
 		default:
 			r := []rune(p)
 			if len(r) > 0 {

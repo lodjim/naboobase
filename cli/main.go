@@ -26,63 +26,65 @@ func main() {
 	}
 
 	for _, filename := range jsonDir {
-		jsonPath := fmt.Sprintf("./json/%s", filename.Name())
-		logger.Printf("Processing file: %s", jsonPath)
-		inputFile := jsonPath
-		// Use the file name (without extension) to derive the main struct name
-		base := strings.Split(filename.Name(), ".")[0]
-		outputFile := fmt.Sprintf("models/%s.go", base)
-		packageName := "models"
-		structName := utils.ConvertToCamelCase(base)
+		if filename.Name() != "user.json" || filename.Name() == "user_request.json" || filename.Name() == "user_response.json" {
+			jsonPath := fmt.Sprintf("./json/%s", filename.Name())
+			logger.Printf("Processing file: %s", jsonPath)
+			inputFile := jsonPath
+			// Use the file name (without extension) to derive the main struct name
+			base := strings.Split(filename.Name(), ".")[0]
+			outputFile := fmt.Sprintf("models/%s.go", base)
+			packageName := "models"
+			structName := utils.ConvertToCamelCase(base)
 
-		// Read and parse JSON
-		jsonData, err := ioutil.ReadFile(inputFile)
-		if err != nil {
-			fmt.Printf("Error reading input file: %v\n", err)
-			os.Exit(1)
-		}
+			// Read and parse JSON
+			jsonData, err := ioutil.ReadFile(inputFile)
+			if err != nil {
+				fmt.Printf("Error reading input file: %v\n", err)
+				os.Exit(1)
+			}
 
-		var data map[string]interface{}
-		if err := json.Unmarshal(jsonData, &data); err != nil {
-			fmt.Printf("Error parsing JSON: %v\n", err)
-			os.Exit(1)
-		}
+			var data map[string]interface{}
+			if err := json.Unmarshal(jsonData, &data); err != nil {
+				fmt.Printf("Error parsing JSON: %v\n", err)
+				os.Exit(1)
+			}
 
-		// Parse structs and enums
-		structs := make(map[string]*utils.StructDefinition)
-		enums := make(map[string]utils.EnumDefinition)
-		utils.ParseStruct(structName, data, structs, enums)
+			// Parse structs and enums
+			structs := make(map[string]*utils.StructDefinition)
+			enums := make(map[string]utils.EnumDefinition)
+			utils.ParseStruct(structName, data, structs, enums)
 
-		// Check if MongoDB primitive import is needed
-		needsPrimitive := false
-		for _, st := range structs {
-			for _, field := range st.Fields {
-				if field.Type == "primitive.ObjectID" {
-					needsPrimitive = true
+			// Check if MongoDB primitive import is needed
+			needsPrimitive := false
+			for _, st := range structs {
+				for _, field := range st.Fields {
+					if field.Type == "primitive.ObjectID" {
+						needsPrimitive = true
+						break
+					}
+				}
+				if needsPrimitive {
 					break
 				}
 			}
-			if needsPrimitive {
-				break
+
+			// Generate code with proper imports, enums, and struct definitions
+			generatedCode := utils.GenerateFile(structs, enums, packageName, needsPrimitive)
+
+			// Format the generated code
+			formattedCode, err := format.Source(generatedCode)
+			if err != nil {
+				fmt.Printf("Error formatting code: %v\n", err)
+				os.Exit(1)
 			}
-		}
 
-		// Generate code with proper imports, enums, and struct definitions
-		generatedCode := utils.GenerateFile(structs, enums, packageName, needsPrimitive)
-
-		// Format the generated code
-		formattedCode, err := format.Source(generatedCode)
-		if err != nil {
-			fmt.Printf("Error formatting code: %v\n", err)
-			os.Exit(1)
+			// Write the formatted code to the output file
+			if err := ioutil.WriteFile(outputFile, formattedCode, 0644); err != nil {
+				fmt.Printf("Error writing output file: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println("Successfully generated struct and enum definitions for", structName)
 		}
-
-		// Write the formatted code to the output file
-		if err := ioutil.WriteFile(outputFile, formattedCode, 0644); err != nil {
-			fmt.Printf("Error writing output file: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Println("Successfully generated struct and enum definitions for", structName)
 	}
 	logger.Println("Processing completed.")
 }

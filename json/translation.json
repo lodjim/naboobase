@@ -1,0 +1,54 @@
+{
+  "_config": {
+    "create": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": false
+      }
+    },
+    "delete": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "getOne": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "getAll": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "update": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "foreign_keys": [],
+    "request_fields": ["wolof", "french"],
+    "response_fields": ["_id", "wolof", "french", "is_good", "created_at"]
+  },
+  "_id": {
+    "value": "",
+    "db": "autogenerate"
+  },
+  "wolof": {
+    "value": ""
+  },
+  "french": {
+    "value": ""
+  },
+  "is_good": {
+    "value": ""
+  },
+  "created_at": {
+    "value": "",
+    "db": "none"
+  }
+}

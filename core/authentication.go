@@ -71,8 +71,8 @@ func (Auth *Authenticator) Login(db MongoDBconnector) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, models.ErrorResponse{Status: http.StatusBadRequest, ErrorMessage: "Password is not correct"})
 			return
 		}
-		token, err := utils.CreateToken(payload.Email, user.ID.Hex(), user.IsVerified, user.IsSuperuser)
-		refreshToken, err := utils.CreateRefreshToken(payload.Email, user.ID.Hex())
+		token, err := utils.CreateToken(payload.Email, user.Id.Hex(), user.IsVerified, user.IsSuperuser)
+		refreshToken, err := utils.CreateRefreshToken(payload.Email, user.Id.Hex())
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Status: http.StatusInternalServerError, ErrorMessage: "Error while creating access token"})
 			return
@@ -106,7 +106,7 @@ func (Auth *Authenticator) RefreshToken(db MongoDBconnector) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{Status: http.StatusNotFound, ErrorMessage: "User is not found"})
 			return
 		}
-		token, err := utils.CreateToken(claims.Email, user.ID.Hex(), user.IsVerified, user.IsSuperuser)
+		token, err := utils.CreateToken(claims.Email, user.Id.Hex(), user.IsVerified, user.IsSuperuser)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Status: http.StatusInternalServerError, ErrorMessage: "Error while creating access token"})
 			return

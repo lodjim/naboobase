@@ -442,11 +442,9 @@ func GenerateGetAllHandler(db MongoDBconnector, config HandlerConfig) gin.Handle
 		var resultToReturn []map[string]interface{}
 
 		for _, item := range results {
-			var newItem map[string]interface{}
+			newItem := make(map[string]interface{}) // Initialize the map here
 			for key, value := range item {
-				value, err = utils.Get(key, response)
-				fmt.Println("some thing--------------------")
-				fmt.Println(value)
+				_, err = utils.Get(utils.ConvertToCamelCase(key), response)
 				if err != nil {
 					continue
 				}

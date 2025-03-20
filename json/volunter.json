@@ -1,0 +1,85 @@
+{
+  "_id": {
+    "value": "cjhjvzivfvbsif",
+    "db": "autogenerate"
+  },
+  "first_name": {
+    "value": "title of the article"
+  },
+  "last_name": {
+    "value": "text"
+  },
+  "sex": {
+    "value": "text",
+    "db": "unique"
+  },
+  "birth_day": {
+    "value": "2024-12-23T00:00:00Z"
+  },
+  "place_of_birth": {
+    "value": "Text"
+  },
+  "location": {
+    "value": "Text"
+  },
+  "education_level": {
+    "value": "Text"
+  },
+  "other_trainings": {
+    "value": "Text"
+  },
+  "marital_status": {
+    "value": "Text"
+  },
+  "cni": {
+    "value": "Text"
+  },
+  "cni_recto": {
+    "value": "Text"
+  },
+  "cni_verso": {
+    "value": "Text"
+  },
+  "certificate_of_residence": {
+    "value": "Text"
+  },
+  "diplome": {
+    "value": "Text"
+  },
+  "created_at": {
+    "value": "2024-12-23T00:00:00Z"
+  },
+  "_config": {
+    "create": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": false
+      }
+    },
+    "delete": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "getOne": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "getAll": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "update": {
+      "auth_rules": {
+        "should_be_authenticated": false,
+        "only_for_admin": false
+      }
+    },
+    "foreign_keys": []
+  }
+}

@@ -14,8 +14,8 @@ const controllerTemplate = `package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"naboobase/core"
-	"naboobase/models"
+	"github.com/lodjim/naboobase/core"
+	"github.com/lodjim/naboobase/models"
 )
 
 // Create{{.Model}} creates a new {{.Model}} in the database
@@ -24,6 +24,7 @@ func Create{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 		NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
 		NewModel:    func() interface{} { return &models.{{.Model}}{} },
 		NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+		Functionality: "{{.Collection}}",
 		Collection:  "{{.Collection}}",
 		Preprocess:  nil,
 	})
@@ -34,6 +35,7 @@ func GetOne{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 		NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
 		NewModel:    func() interface{} { return &models.{{.Model}}{} },
 		NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+		Functionality: "{{.Collection}}",
 		Collection:  "{{.Collection}}",
 		Preprocess:  nil,
 	})
@@ -43,6 +45,7 @@ func GetAll{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 		NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
 		NewModel:    func() interface{} { return &models.{{.Model}}{} },
 		NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+		Functionality: "{{.Collection}}",
 		Collection:  "{{.Collection}}",
 		Preprocess:  nil,
 	})
@@ -53,6 +56,7 @@ func Update{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 			NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
 			NewModel:    func() interface{} { return &models.{{.Model}}{} },
 			NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+			Functionality: "{{.Collection}}",
 			Collection:  "{{.Collection}}",
 			Preprocess:  nil,
 	})
@@ -63,6 +67,7 @@ func Delete{{.Model}}(db core.MongoDBconnector) gin.HandlerFunc {
 			NewRequest:  func() interface{} { return &models.{{.Model}}Request{} },
 			NewModel:    func() interface{} { return &models.{{.Model}}{} },
 			NewResponse: func() interface{} { return &models.{{.Model}}Response{} },
+			Functionality: "{{.Collection}}",
 			Collection:  "{{.Collection}}",
 			Preprocess:  nil,
 	})

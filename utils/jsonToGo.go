@@ -7,23 +7,20 @@ import (
 	"unicode"
 )
 
-// StructDefinition defines the structure of a Go struct.
 type StructDefinition struct {
 	Name   string
 	Fields []FieldDefinition
 }
 
-// FieldDefinition defines the structure of a field in a Go struct.
 type FieldDefinition struct {
 	Name       string
 	Type       string
 	JSONTag    string
 	BSONTag    string
-	DBTag      string // New field for db tag
+	DBTag      string
 	Validation string
 }
 
-// EnumDefinition defines the structure of an enum in Go.
 type EnumDefinition struct {
 	Type   string   // The Go type of the enum (e.g., "string", "int")
 	Values []string // The possible values as strings
@@ -45,21 +42,18 @@ func ConvertToSnakeCase(input string) string {
 	var result []rune
 	for i, r := range input {
 		if unicode.IsUpper(r) {
-			// Add an underscore before the uppercase letter (except for the first character)
 			if i > 0 {
 				result = append(result, '_')
 			}
-			// Convert the uppercase letter to lowercase
 			result = append(result, unicode.ToLower(r))
 		} else {
-			// Append the lowercase letter as is
 			result = append(result, r)
 		}
 	}
 	return string(result)
 }
 
-// ParseStruct parses the JSON-like data into a StructDefinition and handles enums.
+// ParseStruct parses a JSON object into a struct definition.
 func ParseStruct(name string, data map[string]interface{}, structs map[string]*StructDefinition, enums map[string]EnumDefinition) *StructDefinition {
 	st := &StructDefinition{
 		Name:   name,
@@ -173,7 +167,6 @@ func GetGoType(v interface{}) string {
 func GetDefaultValidation(fieldType, fieldName string) string {
 	var validations []string
 
-	// Add validation rules based on field type or name
 	switch {
 	case fieldType == "string":
 		if strings.Contains(strings.ToLower(fieldName), "email") {
@@ -211,11 +204,16 @@ func ToGoFieldName(s string) string {
 }
 
 // GenerateFile generates the complete Go file with enums and structs.
-func GenerateFile(structs map[string]*StructDefinition, enums map[string]EnumDefinition, packageName string) []byte {
+func GenerateFile(structs map[string]*StructDefinition, enums map[string]EnumDefinition, packageName string, needsPrimitive bool) []byte {
 	var buf bytes.Buffer
 
-	// Start with a package declaration
+	// Package declaration (must come first)
 	buf.WriteString(fmt.Sprintf("package %s\n\n", packageName))
+
+	// Imports (if needed, comes after package declaration)
+	if needsPrimitive {
+		buf.WriteString("import \"go.mongodb.org/mongo-driver/bson/primitive\"\n\n")
+	}
 
 	// Generate enums
 	for enumName, enumDef := range enums {
@@ -245,5 +243,5 @@ func GenerateCode(data map[string]interface{}) []byte {
 	structs := make(map[string]*StructDefinition)
 	enums := make(map[string]EnumDefinition)
 	ParseStruct("MyStruct", data, structs, enums)
-	return GenerateFile(structs, enums, "mypackage")
+	return GenerateFile(structs, enums, "mypackage", false)
 }

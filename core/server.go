@@ -66,6 +66,7 @@ func (server *Server) AttachAuthenticationLayer(db MongoDBconnector) {
 
 func (server *Server) AutoServe(db MongoDBconnector) {
 	var newEndpoints []Endpoint
+	superUserManagement := SuperUserManagement{}
 	for k, v := range AutoEndpointFuncRegistry {
 		information := strings.Split(k, "-")
 		if len(information) == 2 {
@@ -85,6 +86,7 @@ func (server *Server) AutoServe(db MongoDBconnector) {
 		}
 	}
 	server.AttachEndpoints(newEndpoints)
+	server.AttachEndpoints(superUserManagement.Init(db))
 }
 
 func (server *Server) RunServer() {

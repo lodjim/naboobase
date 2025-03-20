@@ -1,0 +1,45 @@
+{
+  "first_name": {
+    "value": "title of the article"
+  },
+  "last_name": {
+    "value": "text"
+  },
+  "sex": {
+    "value": "text",
+    "db": "unique"
+  },
+  "birth_day": {
+    "value": "2024-12-23T00:00:00Z"
+  },
+  "place_of_birth": {
+    "value": "Text"
+  },
+  "location": {
+    "value": "Text"
+  },
+  "education_level": {
+    "value": "Text"
+  },
+  "other_trainings": {
+    "value": "Text"
+  },
+  "marital_status": {
+    "value": "Text"
+  },
+  "cni": {
+    "value": "Text"
+  },
+  "cni_recto": {
+    "value": "Text"
+  },
+  "cni_verso": {
+    "value": "Text"
+  },
+  "certificate_of_residence": {
+    "value": "Text"
+  },
+  "diplome": {
+    "value": "Text"
+  }
+}

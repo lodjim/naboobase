@@ -7,13 +7,10 @@ import (
 
 func Get(fieldName string, s interface{}) (interface{}, error) {
 	val := reflect.ValueOf(s)
-
-	// If s is a pointer, dereference it
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
 	}
 
-	// Ensure s is a struct
 	if val.Kind() != reflect.Struct {
 		return nil, fmt.Errorf("expected a struct or a pointer to a struct, got %v", val.Kind())
 	}

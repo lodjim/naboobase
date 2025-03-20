@@ -50,8 +50,8 @@ func main() {
 
 		// Parse structs and enums
 		structs := make(map[string]*utils.StructDefinition)
-		enums := make(map[string]utils.EnumDefinition)      // Initialize enums map
-		utils.ParseStruct(structName, data, structs, enums) // Pass enums map
+		enums := make(map[string]utils.EnumDefinition)
+		utils.ParseStruct(structName, data, structs, enums)
 
 		// Check if MongoDB primitive import is needed
 		needsPrimitive := false
@@ -68,13 +68,7 @@ func main() {
 		}
 
 		// Generate code with proper imports, enums, and struct definitions
-		generatedCode := utils.GenerateFile(structs, enums, packageName)
-
-		// If primitive is needed, add the import statement
-		if needsPrimitive {
-			importStatement := "import \"go.mongodb.org/mongo-driver/bson/primitive\"\n\n"
-			generatedCode = append([]byte(importStatement), generatedCode...)
-		}
+		generatedCode := utils.GenerateFile(structs, enums, packageName, needsPrimitive)
 
 		// Format the generated code
 		formattedCode, err := format.Source(generatedCode)

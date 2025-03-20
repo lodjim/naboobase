@@ -1,31 +1,35 @@
 {
-  "_id": {
-    "value": "cjhjvzivfvbsif",
-    "db": "autogenerate"
-  },
-  "name": {
-    "value": "John Doe"
-  },
-  "email": {
-    "value": "johndoe@example.com",
-    "db": "unique"
-  },
-  "passwordHashed": {
-    "value": "5f4dcc3b5aa765d61d8327deb882cf99"
-  },
-  "is_verified": {
-    "value": false
-  },
-  "is_superuser": {
-    "value": false
-  },
-  "role": {
-    "value": "user"
-  },
-  "created_at": {
-    "value": "2024-12-23T00:00:00Z"
-  },
-  "updated_at": {
-    "value": "2024-12-23T12:00:00Z"
+  "_config": {
+    "create": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": true
+      }
+    },
+    "delete": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": true
+      }
+    },
+    "getOne": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": true
+      }
+    },
+    "getAll": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": true
+      }
+    },
+    "update": {
+      "auth_rules": {
+        "should_be_authenticated": true,
+        "only_for_admin": true
+      }
+    },
+    "foreign_keys": []
   }
 }

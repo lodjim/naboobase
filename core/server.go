@@ -61,7 +61,10 @@ func (server *Server) AttachAuthenticationLayer(db MongoDBconnector) {
 	auth := Authenticator{
 		Type: PasswordTypeAuthenticator,
 	}
+	oauth := ThirdPartAuthenticator{}
+
 	server.AttachEndpoints(auth.Init(db))
+	server.AttachEndpoints(oauth.Init(db))
 }
 
 func (server *Server) AutoServe(db MongoDBconnector) {

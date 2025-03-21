@@ -11,5 +11,6 @@ type User struct {
 	Email          string             `json:"email" bson:"email" db:"unique" validate:"email"`
 	IsVerified     bool               `json:"is_verified" bson:"is_verified"`
 	Role           string             `json:"role" bson:"role" validate:"max=255"`
+	OauthId        string             `json:"oauth_id" bson:"oauth_id"`
 	CreatedAt      string             `json:"created_at" bson:"created_at" validate:"max=255"`
 }

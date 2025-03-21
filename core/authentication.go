@@ -114,3 +114,10 @@ func (Auth *Authenticator) RefreshToken(db MongoDBconnector) gin.HandlerFunc {
 		c.JSON(http.StatusOK, models.LoginResponse{Token: token, TokenType: "Bearer", RefreshToken: payload.RefreshToken})
 	}
 }
+
+/*
+func (Auth *Authenticator) ThirdPartAuth(db MongoDBconnector){
+		githubProvider := github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "http://localhost:8080/callback")
+		goth.UseProviders(githubProvider)
+}
+*/
